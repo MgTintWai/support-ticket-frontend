@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useQueryClient } from '@tanstack/react-query';
 import { login } from '../api/auth';
+import { useAuth } from '../context/AuthContext';
 import { btnPrimary, cardClass, inputClass, labelClass, mutedTextClass, pageTitleClass } from '../utils/ui';
 
 export default function LoginPage() {
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
+  const { establishSession } = useAuth();
   const [email, setEmail] = useState('client@acme.local');
   const [password, setPassword] = useState('password');
   const [error, setError] = useState('');
@@ -18,8 +18,8 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      await login(email, password);
-      await queryClient.invalidateQueries({ queryKey: ['auth', 'me'] });
+      const { token, user } = await login(email, password);
+      establishSession(token, user);
       navigate('/');
     } catch (err) {
       setError(err.response?.data?.message || 'Login failed. Check your credentials.');

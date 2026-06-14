@@ -1,13 +1,12 @@
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { AuthProvider } from './context/AuthContext';
+import { AuthProvider, useAuth } from './context/AuthContext';
 import ProtectedRoute from './components/common/ProtectedRoute';
 import LoginPage from './pages/LoginPage';
 import DashboardPage from './pages/DashboardPage';
 import TicketsPage from './pages/TicketsPage';
 import CreateTicketPage from './pages/CreateTicketPage';
 import TicketDetailPage from './pages/TicketDetailPage';
-import { getToken } from './utils/storage';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -18,18 +17,18 @@ const queryClient = new QueryClient({
   },
 });
 
-export default function App() {
-  const token = getToken();
+function LoginRoute() {
+  const { token } = useAuth();
+  return token ? <Navigate to="/" replace /> : <LoginPage />;
+}
 
+export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <BrowserRouter>
           <Routes>
-            <Route
-              path="/login"
-              element={token ? <Navigate to="/" replace /> : <LoginPage />}
-            />
+            <Route path="/login" element={<LoginRoute />} />
             <Route
               path="/"
               element={<ProtectedRoute><DashboardPage /></ProtectedRoute>}

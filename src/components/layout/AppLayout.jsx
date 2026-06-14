@@ -12,13 +12,17 @@ const navLinkClass = ({ isActive }) =>
   }`;
 
 export default function AppLayout({ children }) {
-  const { user, isAgent } = useAuth();
+  const { user, isAgent, clearSession } = useAuth();
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
 
   const handleLogout = async () => {
-    await logout();
-    navigate('/login');
+    try {
+      await logout();
+    } finally {
+      clearSession();
+      navigate('/login');
+    }
   };
 
   const closeMenu = () => setMenuOpen(false);
@@ -53,7 +57,7 @@ export default function AppLayout({ children }) {
 
           <button
             type="button"
-            className="inline-flex items-center justify-center rounded-lg p-2 text-slate-300 hover:bg-slate-800 hover:text-white md:hidden"
+            className="inline-flex cursor-pointer items-center justify-center rounded-lg p-2 text-slate-300 hover:bg-slate-800 hover:text-white md:hidden"
             aria-label="Toggle menu"
             aria-expanded={menuOpen}
             onClick={() => setMenuOpen((open) => !open)}
